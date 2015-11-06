@@ -1,0 +1,13 @@
+Sub HideRibbon()
+
+Application.ExecuteExcel4Macro "SHOW.TOOLBAR(""Ribbon"",False)"
+
+End Sub
+
+
+
+Sub ShowRibbon()
+
+Application.ExecuteExcel4Macro "SHOW.TOOLBAR(""Ribbon"",True)"
+
+End Sub
