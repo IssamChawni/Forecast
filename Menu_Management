@@ -1,0 +1,52 @@
+Sub Create_Menus()
+'This macro add a menu if the Add-Ins Ribbon
+'1. Set the Workfload Initialize menu
+Set myBar = Application.CommandBars("Worksheet Menu Bar").Controls.Add(msoControlPopup, , , , True)
+myBar.TooltipText = "Workload Menu"
+myBar.Caption = "Workload Initialize"
+With myBar.Controls.Add(msoControlButton)
+.Caption = "Launch Initialization"
+.OnAction = "Initialization"
+.FaceId = 2144 'loupe *
+End With
+With myBar.Controls.Add(msoControlButton)
+.Caption = "Refresh Pivot Tables"
+.OnAction = "RefreshSheet"
+.FaceId = 37 'loupe *
+End With
+
+'2. Set the Voiture balais menu
+
+Set myBar = Application.CommandBars("Worksheet Menu Bar").Controls.Add(msoControlPopup, , , , True)
+myBar.TooltipText = "La voiture balais ramène tous les restes à faire au jour J. En effet le reste à faire ne peut pas démarrer dans le passé!"
+myBar.Caption = "Voiture Balais"
+With myBar.Controls.Add(msoControlButton)
+.Caption = "Voiture Balais"
+.OnAction = "Voiture_Balais_Main"
+.FaceId = 108 'Balais *
+End With
+
+
+End Sub
+
+Sub Supprimer_menu()
+    Application.CommandBars("Worksheet Menu Bar").Controls("Workload Initialize").Delete
+    Application.CommandBars("Worksheet Menu Bar").Controls("Voiture Balais").Delete
+End Sub
+
+Sub RefreshSheet()
+'Refresh Pivot Tables
+'ThisWorkbook.RefreshAll
+Call Lib.RefreshAllPivotTables
+    
+     
+End Sub
+Sub Initialization()
+ 
+ Call Main.Main
+     
+End Sub
+
+Sub Voiture_Balais_Main()
+Call Voiture_Balais
+End Sub
