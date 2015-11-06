@@ -1,0 +1,129 @@
+Sub Main()
+'Launch Initialization column
+    
+    'Progressbar.Show
+        Backup_DataSheet
+        convert_table_to_range
+        CardinalityMultplication
+        Set_TBLH_TABLE
+        Hide_Sheet ("Data")
+    'Progressbar.Hide
+End Sub
+
+
+
+
+Sub Backup_DataSheet()
+'This macro copy the Sheet InitData to Data
+If ExistSheet("Data") Then
+    Sheets("Data").Visible = True
+    Sheets("Data").Select
+    ActiveWindow.SelectedSheets.Delete
+End If
+
+    Sheets("InitData").Select
+    Sheets("InitData").Copy After:=Sheets("InitData")
+    Sheets("InitData (2)").Select
+    Sheets("InitData (2)").Name = "Data"
+    
+    Columns("A:BZ").Select
+    Range("T1").Activate
+    Application.CutCopyMode = False
+    Selection.Copy
+    Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+        :=False, Transpose:=False
+
+End Sub
+
+Sub CardinalityMultplication()
+
+Application.ScreenUpdating = False
+
+'This macro duplicate the lines according to the number of weeks
+   Dim LastlineDataEnd As Integer
+   Sheets("Data").Select
+   FirstLineData = 9
+   '-LastLineDataInit = Application.WorksheetFunction.CountA(Range("B3:B65500"))
+   LastLineDataInit = Application.ActiveSheet.UsedRange.Rows.Count
+   For l = FirstLineData To LastLineDataInit
+       nbweek = DateDiff("w", Range("F" & l).Value, Range("G" & l).Value, vbMonday) 'F:DATE DEBUT RAF; G: DATE FIN RAF
+       LastlineDataEnd = LastlineDataEnd + Range("T" & l).Value 'T = NB Weeks
+       
+   Next
+   
+   For l = FirstLineData To LastlineDataEnd
+       NBWeeks = Range("T" & l).Value 'T = NB Weeks
+       'NBWeeks = DateDiff("w", Range("F" & l).Value, Range("G" & l).Value, vbMonday)
+       If NBWeeks > 1 Then
+            For w = 1 To NBWeeks - 1
+                Rows(l & ":" & l).Select
+                Selection.Copy
+                Selection.Insert Shift:=xlDown
+                tmpdate = Range("K" & l).Value 'K = WEEK
+                Range("K" & l).Value = DateAdd("d", 7, tmpdate) 'K = WEEK
+
+            Next
+            l = l + (NBWeeks - 1)
+       End If
+    Next
+    
+Application.ScreenUpdating = True
+End Sub
+
+Sub Set_TBLH_TABLE()
+'
+' Set TBLH_TABLE Name on the appropriate zone
+'
+    Range("B8:U" & Application.ActiveSheet.UsedRange.Rows.Count).Select
+    myRange = Selection
+    ActiveWorkbook.Names.Add Name:="TBLH_SQLTABLE", RefersTo:=Worksheets("Data").Range("B8:U" & Application.ActiveSheet.UsedRange.Rows.Count)
+    
+     
+End Sub
+
+
+
+Sub convert_table_to_range()
+' get table name
+    Dim oLo As ListObject
+    Set oSh = ActiveSheet
+    For Each oLo In oSh.ListObjects
+        'Convert to Range
+        Call Lib.ConvertTableToRange("Data", oLo.Name)
+    Next
+End Sub
+
+
+Sub Voiture_Balais()
+    Dim tTasks As ListObject
+    Dim i As Long
+    Dim nb_adjusted_lines As Integer
+    nb_adjusted_lines = 0
+    
+    
+    Voiture_Balais_Date = GetADate
+      
+        
+    Set tTasks = ActiveSheet.ListObjects(1)
+  
+    For i = 1 To tTasks.ListRows.Count
+         
+         If tTasks.ListColumns("DATE_DEB_RAF").DataBodyRange.Rows(i) < Voiture_Balais_Date Then
+            nb_adjusted_lines = nb_adjusted_lines + 1
+            tTasks.ListColumns("DATE_DEB_RAF").DataBodyRange.Rows(i) = Voiture_Balais_Date
+         End If
+    Next
+    
+    Msg = MsgBox(nb_adjusted_lines & " lines have been adjusted.", vbOKOnly, "Number of adjusted lines")
+End Sub
+
+Sub Hide_Sheet(sheetname As String)
+'This macro copy the Sheet InitData to Data
+If ExistSheet(sheetname) Then
+    Sheets(sheetname).Select
+    ActiveWindow.SelectedSheets.Visible = False
+End If
+End Sub
+
+
+
