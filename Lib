@@ -48,4 +48,3 @@ Else
     MsgBox "Invalid date"
 End If
 End Function
-End Function
